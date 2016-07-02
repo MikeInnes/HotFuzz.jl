@@ -1,5 +1,8 @@
 module HotFuzz
 
-# package code goes here
+using MacroTools
+
+include("hooks.jl")
+include("trace.jl")
 
 end # module
