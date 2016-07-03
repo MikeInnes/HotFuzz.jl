@@ -1,12 +1,23 @@
+immutable Location
+  file::String
+  line::Int
+end
+
+const nofile = Location("",-1)
+
+type Branch
+  loc::Location
+end
+
 immutable History
-  data::Vector{Bool}
+  data::Vector{Tuple{Branch,Bool}}
 end
 
 History() = History([])
 
-Base.push!(h::History, x::Bool) = push!(h.data, x)
+Base.push!(h::History, x::Tuple{Branch,Bool}) = push!(h.data, x)
 
-branch!(h::History, x::Bool) = (push!(h, x); x)
+branch!(h::History, b::Branch, x::Bool) = (push!(h, (b, x)); x)
 
 @inline trace(f, hist, xs...) = f(xs...)
 
@@ -15,10 +26,13 @@ function tracemethod!(l::LambdaInfo)
   switchfunc!(l, trace)
   insertarg!(l, 2, (symbol("#unused#"),F))
   insertarg!(l, 3, (:history,History))
+  loc = nofile
   map!(l.code) do ex
+    isexpr(ex, :line) && (loc = Location(string(ex.args[2]), ex.args[1]))
+    isa(ex, LineNumberNode) && (loc = Location(loc.file, ex.line))
     isexpr(ex, :gotoifnot) || return ex
     Expr(:gotoifnot,
-         Expr(:call, GlobalRef(HotFuzz, :branch!), SlotNumber(3), ex.args[1]),
+         Expr(:call, GlobalRef(HotFuzz, :branch!), SlotNumber(3), Branch(loc), ex.args[1]),
          ex.args[2])
   end
   return l
