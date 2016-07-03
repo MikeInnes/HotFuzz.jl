@@ -2,7 +2,7 @@ import Base: svec
 
 Base.LambdaInfo() = ccall(:jl_new_lambda_info_uninit, Ref{LambdaInfo}, (Ptr{Void},), C_NULL)
 
-function Base.copy(l::LambdaInfo)
+function copyil(l::LambdaInfo)
   l′ = LambdaInfo()
   for f in fieldnames(l)
     isdefined(l, f) || continue

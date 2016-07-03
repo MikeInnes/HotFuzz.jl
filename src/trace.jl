@@ -39,7 +39,7 @@ function tracemethod!(l::LambdaInfo)
 end
 
 function trace!(meth::Method)
-  linfo = copy(meth.lambda_template)
+  linfo = copyil(meth.lambda_template)
   tracemethod!(linfo)
   jl_method_def(linfo)
   return
