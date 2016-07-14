@@ -1,4 +1,4 @@
-import Base: svec
+import Core: svec
 
 Base.LambdaInfo() = ccall(:jl_new_lambda_info_uninit, Ref{LambdaInfo}, (Ptr{Void},), C_NULL)
 
